@@ -47,7 +47,6 @@ class ALS:
         user_item = self._preprocessing(df)
         als = AlternatingLeastSquares(factors=self.n_factors,
                                      iterations=self.n_iterations,
-                                     alpha=40.0,
                                      regularization=self.reg,
                                     calculate_training_loss=True
                                      )
@@ -271,13 +270,15 @@ class SLIM:
         return user_item
     def fit_predict(self, df: pl.DataFrame) -> pl.DataFrame:
         X = self._preprocessing(df)
+        X = X.tocsc()
         n_items = X.shape[1]
         self.l1_reg = self.l1_reg / (self.l1_reg + self.l2_reg)
         self.model = ElasticNet(alpha=1.0,
                                l1_ratio=self.l1_reg,
                                positive=self.positive_only,
                                fit_intercept=False,
-                               copy_X=False)
+                               copy_X=False,
+                               )
         values, rows, cols = [], [], []
         
         print("ElasticNet for item =========>")
